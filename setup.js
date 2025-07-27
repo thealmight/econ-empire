@@ -56,7 +56,7 @@ try {
 // Install frontend dependencies
 console.log('\n🎨 Installing frontend dependencies...');
 try {
-  execSync('cd client && npm install', { stdio: 'inherit' });
+  execSync('cd frontend && npm install', { stdio: 'inherit' });
   console.log('✅ Frontend dependencies installed');
 } catch (error) {
   console.log('❌ Failed to install frontend dependencies');
@@ -83,7 +83,7 @@ console.log('\n📋 Next steps:');
 console.log('1. Start the backend server:');
 console.log('   cd server && npm run dev');
 console.log('\n2. In a new terminal, start the frontend:');
-console.log('   cd client && npm start');
+console.log('   cd frontend && npm start');
 console.log('\n3. Open your browser and go to:');
 console.log('   http://localhost:3000');
 console.log('\n4. Login as operator with username "pavan" or as a player with any other username');
