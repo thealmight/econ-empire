@@ -46,7 +46,7 @@ try {
 // Install server dependencies
 console.log('\n📦 Installing server dependencies...');
 try {
-  execSync('cd server && npm install', { stdio: 'inherit' });
+  execSync('cd server && npm install && npm run build', { stdio: 'inherit' });
   console.log('✅ Server dependencies installed');
 } catch (error) {
   console.log('❌ Failed to install server dependencies');
@@ -56,7 +56,7 @@ try {
 // Install frontend dependencies
 console.log('\n🎨 Installing frontend dependencies...');
 try {
-  execSync('cd frontend && npm install', { stdio: 'inherit' });
+  execSync('cd frontend && npm run build', { stdio: 'inherit' });
   console.log('✅ Frontend dependencies installed');
 } catch (error) {
   console.log('❌ Failed to install frontend dependencies');
