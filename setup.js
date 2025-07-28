@@ -46,7 +46,7 @@ try {
 // Install server dependencies
 console.log('\n📦 Installing server dependencies...');
 try {
-  execSync('cd server && npm install && npm run build', { stdio: 'inherit' });
+  execSync('cd server && npm install', { stdio: 'inherit' });
   console.log('✅ Server dependencies installed');
 } catch (error) {
   console.log('❌ Failed to install server dependencies');
