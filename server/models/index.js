@@ -38,10 +38,10 @@ TariffRate.belongsTo(User, { foreignKey: 'submittedBy', as: 'submitter' });
 ChatMessage.belongsTo(Game, { foreignKey: 'gameId', as: 'game' });
 ChatMessage.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 
-// Sync database (create tables if they don't exist)
+// Sync database (manual only; do not auto-alter in production)
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: true }); // Use alter: true for development
+    await sequelize.sync();
     console.log('Database synchronized successfully.');
   } catch (error) {
     console.error('Error synchronizing database:', error);
