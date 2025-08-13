@@ -140,14 +140,28 @@ const startGame = async (req, res) => {
     }
 
     // Check if all 5 players are online
-    const onlinePlayers = await User.count({
+    const onlinePlayersCount = await User.count({
       where: { role: 'player', isOnline: true }
     });
 
-    if (onlinePlayers < 5) {
+    if (onlinePlayersCount < 5) {
       return res.status(400).json({ 
-        error: `Cannot start game. Need 5 players online, currently have ${onlinePlayers}` 
+        error: `Cannot start game. Need 5 players online, currently have ${onlinePlayersCount}` 
       });
+    }
+
+    // Ensure the 5 online players have unique countries assigned
+    const onlinePlayers = await User.findAll({
+      where: { role: 'player', isOnline: true },
+      order: [['id', 'ASC']]
+    });
+
+    // Reset and assign deterministically to the first 5 online players
+    for (const p of onlinePlayers) {
+      if (p.country) await p.update({ country: null });
+    }
+    for (let i = 0; i < Math.min(onlinePlayers.length, COUNTRIES.length); i++) {
+      await onlinePlayers[i].update({ country: COUNTRIES[i] });
     }
 
     // Update game status and start first round
