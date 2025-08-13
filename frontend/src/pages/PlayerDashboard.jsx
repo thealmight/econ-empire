@@ -52,11 +52,11 @@ export default function PlayerDashboard() {
 
   // Load game data and player status
   useEffect(() => {
-    if (gameId && currentRound > 0) {
+    if (gameId && currentRound > 0 && authUser?.country) {
       loadGameData();
       loadPlayerTariffStatus();
     }
-  }, [gameId, currentRound]);
+  }, [gameId, currentRound, authUser?.country]);
 
   // Initialize tariff inputs based on player's production
   useEffect(() => {

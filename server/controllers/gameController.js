@@ -144,11 +144,11 @@ const startGame = async (req, res) => {
       where: { role: 'player', isOnline: true }
     });
 
-    if (onlinePlayersCount < 5) {
-      return res.status(400).json({ 
-        error: `Cannot start game. Need 5 players online, currently have ${onlinePlayersCount}` 
-      });
-    }
+          if (onlinePlayersCount !== 5) {
+        return res.status(400).json({ 
+          error: `Cannot start game. Need exactly 5 players online, currently have ${onlinePlayersCount}` 
+        });
+      }
 
     // Ensure the 5 online players have unique countries assigned
     const onlinePlayers = await User.findAll({
@@ -178,6 +178,15 @@ const startGame = async (req, res) => {
       startTime: new Date(),
       status: 'active'
     });
+
+    // Notify clients of updated user countries
+    try {
+      const { io } = require('../server');
+      const users = await User.findAll({ attributes: ['id','username','role','country','isOnline'] });
+      io.emit('onlineUsers', users);
+    } catch (e) {
+      console.error('Failed to broadcast updated users:', e.message);
+    }
 
     res.json({
       success: true,

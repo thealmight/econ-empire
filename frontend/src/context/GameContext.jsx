@@ -60,6 +60,8 @@ export const GameProvider = ({ children }) => {
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setIsConnected(true);
+      // Refresh user to ensure latest role/country
+      refreshUser();
     });
 
     newSocket.on('disconnect', () => {
@@ -337,6 +339,10 @@ export const GameProvider = ({ children }) => {
     if (!gameId) return;
 
     try {
+      // Ensure latest user profile before loading player data
+      if (!authUser?.country) {
+        await refreshUser();
+      }
       let data;
       if (authUser?.role === 'operator') {
         data = await apiCall(`/game/${gameId}`);
