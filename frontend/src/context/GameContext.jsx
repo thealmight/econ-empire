@@ -73,7 +73,7 @@ export const GameProvider = ({ children }) => {
 
     newSocket.on('userStatusUpdate', (update) => {
       setOnlineUsers(prev => {
-        const filtered = prev.filter(user => user.id !== update.userId);
+        const filtered = prev.filter(user => user.id !== update.id);
         if (update.isOnline) {
           return [...filtered, update];
         }
@@ -134,6 +134,14 @@ export const GameProvider = ({ children }) => {
     return () => {
       newSocket.disconnect();
     };
+  };
+
+  // Connect socket immediately after login
+  const connectSocket = () => {
+    const token = localStorage.getItem('token');
+    if (token && !socket) {
+      initializeSocket(token);
+    }
   };
 
   // API helper function
@@ -403,6 +411,7 @@ export const GameProvider = ({ children }) => {
     // Socket
     socket,
     isConnected,
+    connectSocket,
 
     // Actions
     createGame,
