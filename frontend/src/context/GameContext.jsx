@@ -210,6 +210,7 @@ export const GameProvider = ({ children }) => {
   // Start game (operator only)
   const startGame = async () => {
     if (!gameId) throw new Error('No game ID available');
+    if (!authUser || authUser.role !== 'operator') return;
 
     try {
       const data = await apiCall(`/game/${gameId}/start`, {
@@ -241,6 +242,7 @@ export const GameProvider = ({ children }) => {
   // Start next round (operator only)
   const startNextRound = async () => {
     if (!gameId) throw new Error('No game ID available');
+    if (!authUser || authUser.role !== 'operator') return;
 
     try {
       const data = await apiCall(`/game/${gameId}/next-round`, {
@@ -269,6 +271,7 @@ export const GameProvider = ({ children }) => {
   // End game (operator only)
   const endGame = async () => {
     if (!gameId) throw new Error('No game ID available');
+    if (!authUser || authUser.role !== 'operator') return;
 
     try {
       const data = await apiCall(`/game/${gameId}/end`, {
