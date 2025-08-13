@@ -116,6 +116,10 @@ export const GameProvider = ({ children }) => {
       if (data.status) setGameStatus(data.status);
       if (data.totalRounds !== undefined) setRounds(data.totalRounds);
       if (data.isEnded !== undefined) setGameEnded(data.isEnded);
+      // Refresh data on significant state changes
+      if ((data.status && data.status === 'active') || data.currentRound !== undefined) {
+        loadGameData();
+      }
     });
 
     // Handle round timer updates
