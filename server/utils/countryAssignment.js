@@ -5,15 +5,26 @@ async function assignCountryIfMissing(UserModel, userId) {
   if (!user) return null;
   if (user.role !== 'player' || user.country) return user;
 
-  const assigned = await UserModel.findAll({
-    where: { role: 'player' },
+  // Consider only online players for collision avoidance
+  const assignedOnline = await UserModel.findAll({
+    where: { role: 'player', isOnline: true },
     attributes: ['country']
   });
-  const assignedCountries = new Set(assigned.map(u => u.country).filter(Boolean));
-  const availableCountry = COUNTRIES.find(c => !assignedCountries.has(c));
+  const assignedOnlineCountries = new Set(assignedOnline.map(u => u.country).filter(Boolean));
 
-  if (availableCountry) {
-    await user.update({ country: availableCountry });
+  // Prefer an unassigned country from the pool
+  const availableCountry = COUNTRIES.find(c => !assignedOnlineCountries.has(c));
+
+  // If none available (all 5 online are assigned), attempt using any unused among all players
+  let chosen = availableCountry;
+  if (!chosen) {
+    const assignedAll = await UserModel.findAll({ where: { role: 'player' }, attributes: ['country'] });
+    const assignedAllCountries = new Set(assignedAll.map(u => u.country).filter(Boolean));
+    chosen = COUNTRIES.find(c => !assignedAllCountries.has(c));
+  }
+
+  if (chosen) {
+    await user.update({ country: chosen });
   }
   return user;
 }
