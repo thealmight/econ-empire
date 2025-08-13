@@ -60,13 +60,19 @@ export const GameProvider = ({ children }) => {
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setIsConnected(true);
-      // Refresh user to ensure latest role/country
-      refreshUser();
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from server');
+    newSocket.on('disconnect', (reason) => {
+      console.log('Disconnected from server:', reason);
       setIsConnected(false);
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.error('Socket connect_error:', err.message);
+    });
+
+    newSocket.io.on('reconnect', (attempt) => {
+      console.log('Socket reconnected after attempts:', attempt);
     });
 
     // Handle online users updates
@@ -142,9 +148,9 @@ export const GameProvider = ({ children }) => {
   // Connect socket immediately after login
   const connectSocket = () => {
     const token = localStorage.getItem('token');
-    if (token && !socket) {
-      initializeSocket(token);
-    }
+    if (!token) return;
+    if (socket && (socket.connected || socket.connecting)) return;
+    initializeSocket(token);
   };
 
   // API helper function
@@ -198,11 +204,6 @@ export const GameProvider = ({ children }) => {
     try {
       const me = await apiCall('/auth/me');
       setAuthUser(me);
-      // Reconnect socket if needed
-      const token = localStorage.getItem('token');
-      if (token && !isConnected) {
-        initializeSocket(token);
-      }
       return me;
     } catch (e) {
       return null;
