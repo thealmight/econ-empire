@@ -7,13 +7,19 @@ const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+// Helper to parse allowed origins from env (matches app.js)
+const getAllowedOrigins = () => {
+  const urls = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  return urls.split(',').map(u => u.trim()).filter(Boolean);
+};
+
 // Create HTTP server
 const server = http.createServer(app);
 
 // Initialize Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: getAllowedOrigins(),
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -243,7 +249,7 @@ server.listen(PORT, () => {
   console.log(`🚀 Econ Empire server running on port ${PORT}`);
   console.log(`📊 Database: PostgreSQL`);
   console.log(`🔌 WebSocket: Socket.IO enabled`);
-  console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  console.log(`🌐 CORS enabled for origins: ${getAllowedOrigins().join(', ')}`);
 });
 
 // Graceful shutdown
