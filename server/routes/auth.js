@@ -2,11 +2,10 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const { assignCountryIfMissing, COUNTRIES } = require('../utils/countryAssignment');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-const COUNTRIES = ['USA', 'China', 'Germany', 'Japan', 'India'];
 
 // Login route
 router.post('/login', async (req, res) => {
@@ -45,17 +44,8 @@ router.post('/login', async (req, res) => {
 
     // Assign a country to players if missing
     if (user.role === 'player' && !user.country) {
-      const assigned = await User.findAll({
-        where: { role: 'player' },
-        attributes: ['country']
-      });
-      const assignedCountries = new Set(
-        assigned.map(u => u.country).filter(Boolean)
-      );
-      const availableCountry = COUNTRIES.find(c => !assignedCountries.has(c));
-      if (availableCountry) {
-        await user.update({ country: availableCountry });
-      }
+      const updated = await assignCountryIfMissing(User, user.id);
+      user = updated || user;
     }
 
     // Update user as online
@@ -154,10 +144,16 @@ async function authenticateToken(req, res, next) {
 
     const payload = jwt.verify(token, JWT_SECRET);
     // Load fresh user state so we always have current country assignment
-    const user = await User.findByPk(payload.userId);
+    let user = await User.findByPk(payload.userId);
     if (!user) {
       return res.status(401).json({ error: 'Invalid user' });
     }
+
+    // Assign if missing
+    if (user.role === 'player' && !user.country) {
+      user = (await assignCountryIfMissing(User, user.id)) || user;
+    }
+
     req.user = {
       userId: user.id,
       username: user.username,

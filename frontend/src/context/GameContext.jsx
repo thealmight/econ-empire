@@ -191,6 +191,22 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  // After login helper to refresh user profile
+  const refreshUser = async () => {
+    try {
+      const me = await apiCall('/auth/me');
+      setAuthUser(me);
+      // Reconnect socket if needed
+      const token = localStorage.getItem('token');
+      if (token && !isConnected) {
+        initializeSocket(token);
+      }
+      return me;
+    } catch (e) {
+      return null;
+    }
+  };
+
   // Start game (operator only)
   const startGame = async () => {
     if (!gameId) throw new Error('No game ID available');
@@ -423,6 +439,7 @@ export const GameProvider = ({ children }) => {
     submitTariffs,
     loadGameData,
     logout,
+    refreshUser,
 
     // API helper
     apiCall

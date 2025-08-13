@@ -4,7 +4,7 @@ import { useGame } from '../context/GameContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setAuthUser, connectSocket, apiCall } = useGame();
+  const { setAuthUser, connectSocket, apiCall, refreshUser } = useGame();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,6 +36,8 @@ export default function LoginPage() {
 
       // Update the context state
       setAuthUser(data.user);
+      // Refresh user to get assigned country if newly set on backend
+      await refreshUser();
       // Connect socket immediately
       connectSocket();
 
