@@ -166,30 +166,46 @@ export default function OperatorDashboard() {
     setChatInput('');
   };
 
-  const exportTariffHistory = () => {
-    if (tariffHistory.length === 0) return;
+  const exportTariffHistory = async () => {
+    if (!gameId) return;
 
-    const csv = [
-      ['Round', 'Country', 'Player', 'Product', 'Rate', 'Submitted At'].join(','),
-      ...tariffHistory.flatMap(entry => 
-        Object.entries(entry.tariffs).map(([product, rate]) => [
-          entry.round,
-          entry.country,
-          entry.player || entry.submitter?.username || 'Unknown',
-          product,
-          rate,
-          new Date(entry.submittedAt).toLocaleString()
-        ].join(','))
-      )
-    ].join('\n');
+    try {
+      const history = await apiCall(`/game/${gameId}/tariffs/history`);
+      if (!history || history.length === 0) {
+        setError('No tariff history to export');
+        return;
+      }
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tariff_history_round${currentRound}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+      const header = ['Round', 'Country', 'Player', 'Product', 'Rate', 'Submitted At'];
+      const rows = [header.join(',')];
+
+      history.forEach(entry => {
+        const playerName = entry.player || entry.submitter?.username || 'Unknown';
+        const submittedAt = entry.submittedAt ? new Date(entry.submittedAt).toISOString() : '';
+        Object.entries(entry.tariffs || {}).forEach(([product, rate]) => {
+          rows.push([
+            entry.round,
+            entry.country,
+            playerName,
+            product,
+            rate,
+            submittedAt
+          ].join(','));
+        });
+      });
+
+      const csv = rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tariff_history_${gameId}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export tariff history error:', err);
+      setError('Failed to export tariff history');
+    }
   };
 
   const onlinePlayers = onlineUsers.filter(user => user.role === 'player');
