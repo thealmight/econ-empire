@@ -4,7 +4,7 @@ import { useGame } from '../context/GameContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setAuthUser, connectSocket } = useGame();
+  const { setAuthUser, connectSocket, apiCall } = useGame();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,22 +22,13 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+      const data = await apiCall('/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           username: username.trim(),
           password: password || undefined
-        }),
+        })
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
 
       // Store token and user data
       localStorage.setItem('token', data.token);
