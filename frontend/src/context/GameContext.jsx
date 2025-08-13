@@ -52,7 +52,8 @@ export const GameProvider = ({ children }) => {
 
   // Initialize Socket.IO connection
   const initializeSocket = (token) => {
-    const newSocket = io('http://localhost:4000', {
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || '';
+    const newSocket = io(socketUrl || undefined, {
       auth: { token }
     });
 
@@ -73,7 +74,7 @@ export const GameProvider = ({ children }) => {
 
     newSocket.on('userStatusUpdate', (update) => {
       setOnlineUsers(prev => {
-        const filtered = prev.filter(user => user.id !== update.userId);
+        const filtered = prev.filter(user => user.id !== update.id);
         if (update.isOnline) {
           return [...filtered, update];
         }
@@ -136,6 +137,14 @@ export const GameProvider = ({ children }) => {
     };
   };
 
+  // Connect socket immediately after login
+  const connectSocket = () => {
+    const token = localStorage.getItem('token');
+    if (token && !socket) {
+      initializeSocket(token);
+    }
+  };
+
   // API helper function
   const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
@@ -146,7 +155,8 @@ export const GameProvider = ({ children }) => {
       }
     };
 
-    const response = await fetch(`http://localhost:4000/api${endpoint}`, {
+    const apiBase = process.env.REACT_APP_API_BASE || '';
+    const response = await fetch(`${apiBase}/api${endpoint}`, {
       ...defaultOptions,
       ...options,
       headers: { ...defaultOptions.headers, ...options.headers }
@@ -403,6 +413,7 @@ export const GameProvider = ({ children }) => {
     // Socket
     socket,
     isConnected,
+    connectSocket,
 
     // Actions
     createGame,

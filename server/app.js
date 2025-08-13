@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { syncDatabase } = require('./models');
+// const { syncDatabase } = require('./models');
 
 // Import routes
 const { router: authRoutes } = require('./routes/auth');
@@ -9,9 +9,15 @@ const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
 
+// Helper to parse allowed origins from env
+const getAllowedOrigins = () => {
+  const urls = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  return urls.split(',').map(u => u.trim()).filter(Boolean);
+};
+
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: getAllowedOrigins(),
   credentials: true
 }));
 app.use(express.json());
@@ -40,11 +46,11 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Initialize database
-syncDatabase().then(() => {
-  console.log('Database synchronized successfully');
-}).catch(err => {
-  console.error('Database synchronization failed:', err);
-});
+// Remove app-level sync, handled by scripts/sync.js
+// syncDatabase().then(() => {
+//   console.log('Database synchronized successfully');
+// }).catch(err => {
+//   console.error('Database synchronization failed:', err);
+// });
 
 module.exports = app;

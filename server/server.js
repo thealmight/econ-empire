@@ -58,8 +58,9 @@ io.on('connection', async (socket) => {
 
     // Notify all clients about user connection
     io.emit('userStatusUpdate', {
-      userId: socket.userId,
+      id: socket.userId,
       username: socket.username,
+      role: socket.role,
       country: socket.country,
       isOnline: true
     });
@@ -219,8 +220,9 @@ io.on('connection', async (socket) => {
 
       // Notify all clients about user disconnection
       io.emit('userStatusUpdate', {
-        userId: socket.userId,
+        id: socket.userId,
         username: socket.username,
+        role: socket.role,
         country: socket.country,
         isOnline: false
       });

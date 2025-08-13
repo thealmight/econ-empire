@@ -4,7 +4,7 @@ import { useGame } from '../context/GameContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setAuthUser } = useGame();
+  const { setAuthUser, connectSocket } = useGame();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,6 +45,8 @@ export default function LoginPage() {
 
       // Update the context state
       setAuthUser(data.user);
+      // Connect socket immediately
+      connectSocket();
 
       // Navigate based on role
       if (data.user.role === 'operator') {
