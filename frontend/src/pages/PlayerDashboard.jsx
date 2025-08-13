@@ -52,9 +52,11 @@ export default function PlayerDashboard() {
 
   // Load game data and player status
   useEffect(() => {
-    if (gameId && currentRound > 0 && authUser?.country) {
+    if (gameId && authUser?.country) {
       loadGameData();
-      loadPlayerTariffStatus();
+      if (currentRound > 0) {
+        loadPlayerTariffStatus();
+      }
     }
   }, [gameId, currentRound, authUser?.country]);
 

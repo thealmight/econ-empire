@@ -184,6 +184,12 @@ const startGame = async (req, res) => {
       const { io } = require('../server');
       const users = await User.findAll({ attributes: ['id','username','role','country','isOnline'] });
       io.emit('onlineUsers', users);
+      io.emit('gameStateChanged', {
+        gameId,
+        status: 'active',
+        currentRound: 1,
+        totalRounds: game.totalRounds
+      });
     } catch (e) {
       console.error('Failed to broadcast updated users:', e.message);
     }

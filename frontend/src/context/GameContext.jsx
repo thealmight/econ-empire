@@ -78,13 +78,16 @@ export const GameProvider = ({ children }) => {
     // Handle online users updates
     newSocket.on('onlineUsers', (users) => {
       setOnlineUsers(users);
-      // If current user lacks country, adopt it from the users list
-      if (authUser && !authUser.country) {
-        const me = users.find(u => u.id === authUser.id);
-        if (me && me.country) {
-          setAuthUser(prev => ({ ...prev, country: me.country }));
+      setAuthUser(prev => {
+        if (!prev) return prev;
+        if (!prev.country) {
+          const me = users.find(u => u.id === prev.id);
+          if (me && me.country) {
+            return { ...prev, country: me.country };
+          }
         }
-      }
+        return prev;
+      });
     });
 
     newSocket.on('userStatusUpdate', (update) => {
@@ -95,10 +98,13 @@ export const GameProvider = ({ children }) => {
         }
         return filtered;
       });
-      // If this update is for the current user, reflect new country immediately
-      if (authUser && update.id === authUser.id && update.country && update.country !== authUser.country) {
-        setAuthUser(prev => ({ ...prev, country: update.country }));
-      }
+      setAuthUser(prev => {
+        if (!prev) return prev;
+        if (update.id === prev.id && update.country && update.country !== prev.country) {
+          return { ...prev, country: update.country };
+        }
+        return prev;
+      });
     });
 
     // Handle game state updates
