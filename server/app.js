@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { syncDatabase } = require('./models');
+// const { syncDatabase } = require('./models');
 
 // Import routes
 const { router: authRoutes } = require('./routes/auth');
@@ -46,11 +46,11 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Initialize database
-syncDatabase().then(() => {
-  console.log('Database synchronized successfully');
-}).catch(err => {
-  console.error('Database synchronization failed:', err);
-});
+// Remove app-level sync, handled by scripts/sync.js
+// syncDatabase().then(() => {
+//   console.log('Database synchronized successfully');
+// }).catch(err => {
+//   console.error('Database synchronization failed:', err);
+// });
 
 module.exports = app;
