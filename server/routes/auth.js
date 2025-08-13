@@ -6,6 +6,8 @@ const { User } = require('../models');
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+const COUNTRIES = ['USA', 'China', 'Germany', 'Japan', 'India'];
+
 // Login route
 router.post('/login', async (req, res) => {
   try {
@@ -38,6 +40,21 @@ router.post('/login', async (req, res) => {
         if (!isValidPassword) {
           return res.status(401).json({ error: 'Invalid password' });
         }
+      }
+    }
+
+    // Assign a country to players if missing
+    if (user.role === 'player' && !user.country) {
+      const assigned = await User.findAll({
+        where: { role: 'player' },
+        attributes: ['country']
+      });
+      const assignedCountries = new Set(
+        assigned.map(u => u.country).filter(Boolean)
+      );
+      const availableCountry = COUNTRIES.find(c => !assignedCountries.has(c));
+      if (availableCountry) {
+        await user.update({ country: availableCountry });
       }
     }
 
@@ -126,21 +143,31 @@ router.get('/players', authenticateToken, requireOperator, async (req, res) => {
 });
 
 // Middleware to authenticate JWT token
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+async function authenticateToken(req, res, next) {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
     }
-    req.user = user;
+
+    const payload = jwt.verify(token, JWT_SECRET);
+    // Load fresh user state so we always have current country assignment
+    const user = await User.findByPk(payload.userId);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid user' });
+    }
+    req.user = {
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+      country: user.country
+    };
     next();
-  });
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid or expired token' });
+  }
 }
 
 // Middleware to require operator role
