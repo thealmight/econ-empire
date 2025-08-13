@@ -11,6 +11,7 @@ router.post('/:gameId/start', authenticateToken, requireOperator, gameController
 router.post('/:gameId/next-round', authenticateToken, requireOperator, gameController.startNextRound);
 router.post('/:gameId/end', authenticateToken, requireOperator, gameController.endGame);
 router.post('/:gameId/reset', authenticateToken, requireOperator, gameController.resetGame);
+router.post('/clear-all', authenticateToken, requireOperator, gameController.clearAllData);
 
 // Game data routes
 router.get('/:gameId', authenticateToken, gameController.getGameData);

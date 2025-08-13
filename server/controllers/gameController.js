@@ -1,6 +1,7 @@
 const { Game, GameRound, Production, Demand, TariffRate, User } = require('../models');
 const { Op } = require('sequelize');
 const { assignCountryIfMissing } = require('../utils/countryAssignment');
+const { ChatMessage } = require('../models');
 
 // Constants
 const COUNTRIES = ['USA', 'China', 'Germany', 'Japan', 'India'];
@@ -443,6 +444,36 @@ const resetGame = async (req, res) => {
   }
 };
 
+// Clear all game data and reset users (operator only)
+const clearAllData = async (req, res) => {
+  try {
+    // Remove game-related rows
+    await ChatMessage.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+    await TariffRate.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+    await Demand.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+    await Production.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+    await GameRound.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+    await Game.destroy({ where: {}, truncate: true, cascade: true, restartIdentity: true });
+
+    // Reset users (keep accounts, clear assignments/online state)
+    await User.update({ country: null, isOnline: false, socketId: null }, { where: {} });
+
+    // Broadcast updates
+    try {
+      const { io } = require('../server');
+      io.emit('gameStateChanged', { status: 'waiting', currentRound: 0 });
+      io.emit('onlineUsers', []);
+    } catch (e) {
+      // ignore broadcast errors
+    }
+
+    res.json({ success: true, message: 'All game data cleared. Users reset.' });
+  } catch (error) {
+    console.error('Clear all data error:', error);
+    res.status(500).json({ error: 'Failed to clear data' });
+  }
+};
+
 module.exports = {
   createGame,
   startGame,
@@ -451,5 +482,6 @@ module.exports = {
   getGameData,
   getPlayerGameData,
   resetGame,
-  initializeGameData
+  initializeGameData,
+  clearAllData
 };
