@@ -40,6 +40,10 @@ router.post('/login', async (req, res) => {
           return res.status(401).json({ error: 'Invalid password' });
         }
       }
+      // Ensure operator role for the operator account
+      if (username === 'pavan' && user.role !== 'operator') {
+        await user.update({ role: 'operator', country: null });
+      }
     }
 
     // Assign a country to players if missing

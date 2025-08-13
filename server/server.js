@@ -169,13 +169,13 @@ io.on('connection', async (socket) => {
   });
 
   // Handle game state updates
-  socket.on('gameStateUpdate', (data) => {
-    if (socket.role !== 'operator') {
-      socket.emit('error', { message: 'Only operators can update game state' });
-      return;
-    }
-
+  socket.on('gameStateUpdate', async (data) => {
     try {
+      const latestUser = await User.findByPk(socket.userId);
+      if (!latestUser || latestUser.role !== 'operator') {
+        socket.emit('error', { message: 'Only operators can update game state' });
+        return;
+      }
       // Broadcast game state changes to all connected clients
       io.emit('gameStateChanged', {
         ...data,
@@ -190,13 +190,13 @@ io.on('connection', async (socket) => {
   });
 
   // Handle round timer updates
-  socket.on('roundTimerUpdate', (data) => {
-    if (socket.role !== 'operator') {
-      socket.emit('error', { message: 'Only operators can update round timer' });
-      return;
-    }
-
+  socket.on('roundTimerUpdate', async (data) => {
     try {
+      const latestUser = await User.findByPk(socket.userId);
+      if (!latestUser || latestUser.role !== 'operator') {
+        socket.emit('error', { message: 'Only operators can update round timer' });
+        return;
+      }
       const { gameId, currentRound, timeRemaining } = data;
       
       // Broadcast timer update to all clients
