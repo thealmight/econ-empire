@@ -20,6 +20,8 @@ export default function PlayerDashboard() {
     products,
     production,
     demand,
+    productionAll,
+    demandAll,
     tariffRates,
     chatMessages,
     submitTariffs,
@@ -62,15 +64,19 @@ export default function PlayerDashboard() {
 
   // Initialize tariff inputs based on player's production
   useEffect(() => {
-    if (production.length > 0 && demand.length > 0 && authUser?.country) {
+    if ((production.length > 0 || productionAll.length > 0) && (demand.length > 0 || demandAll.length > 0) && authUser?.country) {
       const inputs = {};
+
+      const playerProd = production.length > 0 ? production : productionAll.filter(p => p.country === authUser.country);
+      const demandForDropdown = demandAll.length > 0 ? demandAll : demand;
       
       // For each product the player's country produces
-      production.forEach(prod => {
+      playerProd.forEach(prod => {
         // For each country that demands this product
-        const demandingCountries = demand
+        const demandingCountries = demandForDropdown
           .filter(d => d.product === prod.product)
-          .map(d => d.country);
+          .map(d => d.country)
+          .filter(c => c !== authUser.country);
         
         demandingCountries.forEach(country => {
           const key = `${prod.product}-${country}`;
@@ -84,10 +90,10 @@ export default function PlayerDashboard() {
           inputs[key] = existingTariff ? String(existingTariff.rate) : '';
         });
       });
-      
+
       setTariffInputs(inputs);
     }
-  }, [production, demand, tariffRates, authUser?.country, currentRound]);
+  }, [production, productionAll, demand, demandAll, tariffRates, authUser?.country, currentRound]);
 
   // Countdown timer
   useCountdown(timeLeft, setTimeLeft, gameStatus === 'active' && !isGameEnded);
@@ -323,7 +329,7 @@ export default function PlayerDashboard() {
                 <div className="space-y-4 mb-6">
                   {playerProduction.map(prod => {
                     // Find countries that demand this product
-                    const demandingCountries = demand
+                    const demandingCountries = demandAll
                       .filter(d => d.product === prod.product && d.country !== playerCountry)
                       .map(d => d.country);
 
@@ -335,7 +341,7 @@ export default function PlayerDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {demandingCountries.map(country => {
                             const key = `${prod.product}-${country}`;
-                            const demandQuantity = demand.find(d => d.product === prod.product && d.country === country)?.quantity;
+                            const demandQuantity = demandAll.find(d => d.product === prod.product && d.country === country)?.quantity;
                             
                             return (
                               <div key={country} className="border rounded p-3">
@@ -387,7 +393,7 @@ export default function PlayerDashboard() {
             <div className="space-y-4">
               {playerDemand.map(dem => {
                 // Find countries that produce this product
-                const producingCountries = production
+                const producingCountries = productionAll
                   .filter(p => p.product === dem.product && p.country !== playerCountry)
                   .map(p => ({ country: p.country, quantity: p.quantity }));
 

@@ -22,6 +22,8 @@ export const GameProvider = ({ children }) => {
   const [products] = useState(['Steel', 'Grain', 'Oil', 'Electronics', 'Textiles']);
   const [production, setProduction] = useState([]);
   const [demand, setDemand] = useState([]);
+  const [productionAll, setProductionAll] = useState([]);
+  const [demandAll, setDemandAll] = useState([]);
   const [tariffRates, setTariffRates] = useState([]);
   const [tariffHistory, setTariffHistory] = useState([]);
 
@@ -371,6 +373,8 @@ export const GameProvider = ({ children }) => {
         data = await apiCall(`/game/${gameId}/player-data?currentRound=${currentRound}`);
         setProduction(data.production || []);
         setDemand(data.demand || []);
+        setProductionAll(data.productionAll || []);
+        setDemandAll(data.demandAll || []);
         setTariffRates(data.tariffRates || []);
       }
     } catch (error) {
@@ -446,6 +450,8 @@ export const GameProvider = ({ children }) => {
     products,
     production,
     demand,
+    productionAll,
+    demandAll,
     tariffRates,
     tariffHistory,
 

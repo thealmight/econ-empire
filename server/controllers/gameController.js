@@ -354,10 +354,15 @@ const getPlayerGameData = async (req, res) => {
       where: { gameId, country: playerCountry }
     });
 
+    // Get global production and demand for building UI
+    const productionAll = await Production.findAll({ where: { gameId } });
+
     // Get player's demand data
     const demand = await Demand.findAll({
       where: { gameId, country: playerCountry }
     });
+
+    const demandAll = await Demand.findAll({ where: { gameId } });
 
     const producedProductNames = production.map(p => p.product);
     const demandedProductNames = demand.map(d => d.product);
@@ -385,6 +390,8 @@ const getPlayerGameData = async (req, res) => {
       country: playerCountry,
       production,
       demand,
+      productionAll,
+      demandAll,
       tariffRates
     });
 
