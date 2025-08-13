@@ -234,19 +234,27 @@ FRONTEND_URL=http://localhost:3000
 
 ## 🚀 Deployment
 
-### Production Setup
-1. Set up PostgreSQL database
-2. Configure environment variables
-3. Build React frontend: `npm run build`
-4. Deploy backend with process manager (PM2)
-5. Set up reverse proxy (Nginx)
-6. Configure SSL certificates
+### With Docker Compose (local or server)
+- Prereqs: Docker and Docker Compose
+- Steps:
+  1. Set JWT secret in `docker/docker-compose.yml` (env `JWT_SECRET`)
+  2. Build and run: `docker compose -f docker/docker-compose.yml up -d --build`
+  3. App will be available at http://localhost (frontend), backend at http://localhost:4000/api
 
-### Docker Deployment (Optional)
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-```
+Environment variables:
+- Server:
+  - `DATABASE_URL=postgres://postgres:postgres@db:5432/econempire`
+  - `FRONTEND_URL=http://localhost`
+  - `PORT=4000`
+  - `JWT_SECRET=change-me-in-prod`
+- Frontend build args (optional):
+  - `REACT_APP_API_BASE=""` (empty means same-origin `/api` via Nginx proxy)
+  - `REACT_APP_SOCKET_URL=""` (empty means same-origin `/socket.io`)
+
+### Bare-metal (PM2 + Nginx)
+- Build frontend: `cd frontend && npm ci && npm run build`
+- Serve build via Nginx; proxy `/api` and `/socket.io` to Node server
+- Start server: `cd server && npm ci && NODE_ENV=production PORT=4000 pm2 start server.js`
 
 ## 📝 License
 

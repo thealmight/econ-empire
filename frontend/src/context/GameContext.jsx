@@ -52,7 +52,8 @@ export const GameProvider = ({ children }) => {
 
   // Initialize Socket.IO connection
   const initializeSocket = (token) => {
-    const newSocket = io('http://localhost:4000', {
+    const socketUrl = process.env.REACT_APP_SOCKET_URL || '';
+    const newSocket = io(socketUrl || undefined, {
       auth: { token }
     });
 
@@ -154,7 +155,8 @@ export const GameProvider = ({ children }) => {
       }
     };
 
-    const response = await fetch(`http://localhost:4000/api${endpoint}`, {
+    const apiBase = process.env.REACT_APP_API_BASE || '';
+    const response = await fetch(`${apiBase}/api${endpoint}`, {
       ...defaultOptions,
       ...options,
       headers: { ...defaultOptions.headers, ...options.headers }
