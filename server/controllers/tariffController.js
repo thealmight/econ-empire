@@ -147,7 +147,7 @@ const getTariffRates = async (req, res) => {
   }
 };
 
-// Get tariff history for operator dashboard
+// Get tariff history (flattened)
 const getTariffHistory = async (req, res) => {
   try {
     const { gameId } = req.params;
@@ -158,34 +158,23 @@ const getTariffHistory = async (req, res) => {
         {
           model: User,
           as: 'submitter',
-          attributes: ['username', 'country']
+          attributes: ['username']
         }
       ],
       order: [['roundNumber', 'ASC'], ['submittedAt', 'ASC']]
     });
 
-    // Group by round and country for easier display
-    const groupedHistory = {};
-    
-    tariffHistory.forEach(tariff => {
-      const key = `${tariff.roundNumber}-${tariff.fromCountry}`;
-      if (!groupedHistory[key]) {
-        groupedHistory[key] = {
-          round: tariff.roundNumber,
-          country: tariff.fromCountry,
-          submitter: tariff.submitter,
-          tariffs: {},
-          submittedAt: tariff.submittedAt
-        };
-      }
-      groupedHistory[key].tariffs[tariff.product] = {
-        toCountry: tariff.toCountry,
-        rate: tariff.rate
-      };
-    });
+    const rows = tariffHistory.map(t => ({
+      round: t.roundNumber,
+      fromCountry: t.fromCountry,
+      toCountry: t.toCountry,
+      product: t.product,
+      rate: t.rate,
+      submittedAt: t.submittedAt,
+      player: t.submitter ? t.submitter.username : null
+    }));
 
-    res.json(Object.values(groupedHistory));
-
+    res.json(rows);
   } catch (error) {
     console.error('Get tariff history error:', error);
     res.status(500).json({ error: 'Failed to get tariff history' });

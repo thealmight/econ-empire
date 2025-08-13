@@ -176,22 +176,19 @@ export default function OperatorDashboard() {
         return;
       }
 
-      const header = ['Round', 'Country', 'Player', 'Product', 'Rate', 'Submitted At'];
+      const header = ['Round', 'From Country', 'To Country', 'Product', 'Rate', 'Player', 'Submitted At'];
       const rows = [header.join(',')];
 
-      history.forEach(entry => {
-        const playerName = entry.player || entry.submitter?.username || 'Unknown';
-        const submittedAt = entry.submittedAt ? new Date(entry.submittedAt).toISOString() : '';
-        Object.entries(entry.tariffs || {}).forEach(([product, rate]) => {
-          rows.push([
-            entry.round,
-            entry.country,
-            playerName,
-            product,
-            rate,
-            submittedAt
-          ].join(','));
-        });
+      history.forEach(row => {
+        rows.push([
+          row.round,
+          row.fromCountry,
+          row.toCountry,
+          row.product,
+          row.rate,
+          row.player || 'System',
+          row.submittedAt ? new Date(row.submittedAt).toISOString() : ''
+        ].join(','));
       });
 
       const csv = rows.join('\n');
@@ -473,7 +470,7 @@ export default function OperatorDashboard() {
         {tariffHistory.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Tariff Submission History</h2>
+              <h2 className="text-xl font-semibold">Tariff History</h2>
               <button
                 onClick={exportTariffHistory}
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
@@ -486,28 +483,24 @@ export default function OperatorDashboard() {
                 <thead className="bg-gray-200 sticky top-0">
                   <tr>
                     <th className="px-3 py-2 text-left">Round</th>
-                    <th className="px-3 py-2 text-left">Country</th>
+                    <th className="px-3 py-2 text-left">From Country</th>
+                    <th className="px-3 py-2 text-left">To Country</th>
+                    <th className="px-3 py-2 text-left">Product</th>
+                    <th className="px-3 py-2 text-left">Rate</th>
                     <th className="px-3 py-2 text-left">Player</th>
-                    <th className="px-3 py-2 text-left">Time</th>
-                    {products.map(product => (
-                      <th key={product} className="px-3 py-2 text-center">{product}</th>
-                    ))}
+                    <th className="px-3 py-2 text-left">Submitted At</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {tariffHistory.map((entry, idx) => (
+                  {tariffHistory.map((row, idx) => (
                     <tr key={idx} className="border-t">
-                      <td className="px-3 py-2">{entry.round}</td>
-                      <td className="px-3 py-2">{entry.country}</td>
-                      <td className="px-3 py-2">{entry.player || entry.submitter?.username || 'Unknown'}</td>
-                      <td className="px-3 py-2 text-xs">
-                        {new Date(entry.submittedAt).toLocaleTimeString()}
-                      </td>
-                      {products.map(product => (
-                        <td key={product} className="px-3 py-2 text-center">
-                          {entry.tariffs[product] !== undefined ? `${entry.tariffs[product]}%` : '-'}
-                        </td>
-                      ))}
+                      <td className="px-3 py-2">{row.round}</td>
+                      <td className="px-3 py-2">{row.fromCountry}</td>
+                      <td className="px-3 py-2">{row.toCountry}</td>
+                      <td className="px-3 py-2">{row.product}</td>
+                      <td className="px-3 py-2">{row.rate}%</td>
+                      <td className="px-3 py-2">{row.player || 'System'}</td>
+                      <td className="px-3 py-2 text-xs">{row.submittedAt ? new Date(row.submittedAt).toLocaleString() : ''}</td>
                     </tr>
                   ))}
                 </tbody>
