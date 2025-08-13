@@ -170,6 +170,7 @@ const startGame = async (req, res) => {
       message: 'Game started successfully',
       game: {
         id: game.id,
+        totalRounds: game.totalRounds,
         currentRound: game.currentRound,
         status: game.status
       }
@@ -219,7 +220,8 @@ const startNextRound = async (req, res) => {
     res.json({
       success: true,
       message: `Round ${nextRound} started`,
-      currentRound: nextRound
+      currentRound: nextRound,
+      totalRounds: game.totalRounds
     });
 
   } catch (error) {

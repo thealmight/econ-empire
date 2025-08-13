@@ -87,7 +87,7 @@ export const GameProvider = ({ children }) => {
       if (data.gameId) setGameId(data.gameId);
       if (data.currentRound !== undefined) setCurrentRound(data.currentRound);
       if (data.status) setGameStatus(data.status);
-      if (data.totalRounds) setRounds(data.totalRounds);
+      if (data.totalRounds !== undefined) setRounds(data.totalRounds);
       if (data.isEnded !== undefined) setGameEnded(data.isEnded);
     });
 

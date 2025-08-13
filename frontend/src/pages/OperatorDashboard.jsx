@@ -74,6 +74,13 @@ export default function OperatorDashboard() {
     setError('');
     try {
       await createGame(rounds);
+      // Broadcast total rounds so players receive it immediately
+      if (socket && authUser?.role === 'operator') {
+        socket.emit('gameStateUpdate', {
+          gameId,
+          totalRounds: rounds
+        });
+      }
     } catch (error) {
       setError(error.message);
     } finally {
