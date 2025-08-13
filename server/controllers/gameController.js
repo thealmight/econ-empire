@@ -1,5 +1,6 @@
 const { Game, GameRound, Production, Demand, TariffRate, User } = require('../models');
 const { Op } = require('sequelize');
+const { assignCountryIfMissing } = require('../utils/countryAssignment');
 
 // Constants
 const COUNTRIES = ['USA', 'China', 'Germany', 'Japan', 'India'];
@@ -305,7 +306,13 @@ const getGameData = async (req, res) => {
 const getPlayerGameData = async (req, res) => {
   try {
     const { gameId } = req.params;
-    const playerCountry = req.user.country;
+    let playerCountry = req.user.country;
+
+    // Auto-assign if missing
+    if (!playerCountry) {
+      const updatedUser = await assignCountryIfMissing(User, req.user.userId);
+      playerCountry = updatedUser?.country;
+    }
 
     if (!playerCountry) {
       return res.status(400).json({ error: 'Player country not assigned' });

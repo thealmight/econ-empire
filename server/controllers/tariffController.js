@@ -1,12 +1,18 @@
 const { TariffRate, Production, User, Game } = require('../models');
 const { Op } = require('sequelize');
+const { assignCountryIfMissing } = require('../utils/countryAssignment');
 
 // Submit tariff changes
 const submitTariffChanges = async (req, res) => {
   try {
     const { gameId, roundNumber, tariffChanges } = req.body;
     const userId = req.user.userId;
-    const userCountry = req.user.country;
+    let userCountry = req.user.country;
+
+    if (!userCountry) {
+      const updatedUser = await assignCountryIfMissing(User, userId);
+      userCountry = updatedUser?.country;
+    }
 
     if (!userCountry) {
       return res.status(400).json({ error: 'Player country not assigned' });
@@ -190,7 +196,12 @@ const getTariffHistory = async (req, res) => {
 const getPlayerTariffStatus = async (req, res) => {
   try {
     const { gameId, roundNumber } = req.params;
-    const userCountry = req.user.country;
+    let userCountry = req.user.country;
+
+    if (!userCountry) {
+      const updatedUser = await assignCountryIfMissing(User, req.user.userId);
+      userCountry = updatedUser?.country;
+    }
 
     if (!userCountry) {
       return res.status(400).json({ error: 'Player country not assigned' });
