@@ -256,6 +256,16 @@ Environment variables:
 - Serve build via Nginx; proxy `/api` and `/socket.io` to Node server
 - Start server: `cd server && npm ci && NODE_ENV=production PORT=4000 pm2 start server.js`
 
+### Vercel + Railway
+- Deploy frontend to Vercel (build `npm run build`, output `build`)
+- Deploy backend to Railway (Node service)
+- Set envs:
+  - On Railway: `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URLS=https://<vercel-app>.vercel.app`
+  - On Vercel (Build time): `REACT_APP_API_BASE=https://<railway-app>.up.railway.app`, `REACT_APP_SOCKET_URL=https://<railway-app>.up.railway.app`
+- Realtime works via Socket.IO over HTTPS; ensure both use the Railway base URL
+
+See `server/README.md` and `frontend/README.md` for details.
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

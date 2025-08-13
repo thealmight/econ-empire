@@ -29,3 +29,19 @@ The project is set up to use `postcss-cli` to process your CSS files. You can ad
 ## Contributing
 
 Contributions are welcome! If you have any suggestions or find any issues, please feel free to open an issue or a pull request.
+
+# Frontend Deployment Notes
+
+## Vercel
+- Set build command: `npm run build`
+- Output directory: `build`
+- Environment variables (Build time):
+  - `REACT_APP_API_BASE` = `https://<your-railway-domain>` or empty for same-origin
+  - `REACT_APP_SOCKET_URL` = `https://<your-railway-domain>` or empty for same-origin
+
+If using separate domains (Vercel for frontend, Railway for backend):
+- Set `REACT_APP_API_BASE` to the Railway backend URL.
+- Set `REACT_APP_SOCKET_URL` to the Railway backend URL.
+
+## Local test after deploy
+- Visit the Vercel URL and login; realtime should work if the backend URL and CORS are configured.

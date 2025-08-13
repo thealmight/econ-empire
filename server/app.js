@@ -9,9 +9,15 @@ const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
 
+// Helper to parse allowed origins from env
+const getAllowedOrigins = () => {
+  const urls = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  return urls.split(',').map(u => u.trim()).filter(Boolean);
+};
+
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: getAllowedOrigins(),
   credentials: true
 }));
 app.use(express.json());
