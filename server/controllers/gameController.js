@@ -353,13 +353,24 @@ const getPlayerGameData = async (req, res) => {
       where: { gameId, country: playerCountry }
     });
 
-    // Get tariff rates for products the player's country demands
-    const demandedProducts = demand.map(d => d.product);
+    const producedProductNames = production.map(p => p.product);
+    const demandedProductNames = demand.map(d => d.product);
+
+    const roundLimit = Number.isFinite(Number(req.query.currentRound))
+      ? Number(req.query.currentRound)
+      : 0;
+
+    // Include both import-relevant and export-relevant tariff rates
     const tariffRates = await TariffRate.findAll({
       where: {
         gameId,
-        product: { [Op.in]: demandedProducts },
-        roundNumber: { [Op.lte]: req.query.currentRound || 0 }
+        roundNumber: { [Op.lte]: roundLimit },
+        [Op.or]: [
+          // Imports affecting this player
+          { product: { [Op.in]: demandedProductNames }, toCountry: playerCountry },
+          // Exports that this player can set
+          { product: { [Op.in]: producedProductNames }, fromCountry: playerCountry }
+        ]
       },
       order: [['roundNumber', 'DESC']]
     });

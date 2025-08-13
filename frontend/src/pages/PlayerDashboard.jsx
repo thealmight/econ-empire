@@ -60,7 +60,7 @@ export default function PlayerDashboard() {
 
   // Initialize tariff inputs based on player's production
   useEffect(() => {
-    if (production.length > 0 && demand.length > 0) {
+    if (production.length > 0 && demand.length > 0 && authUser?.country) {
       const inputs = {};
       
       // For each product the player's country produces
@@ -72,14 +72,14 @@ export default function PlayerDashboard() {
         
         demandingCountries.forEach(country => {
           const key = `${prod.product}-${country}`;
-          // Find existing tariff rate
+          // Find existing tariff rate set by this player for this round
           const existingTariff = tariffRates.find(t => 
             t.product === prod.product && 
             t.fromCountry === authUser.country && 
             t.toCountry === country &&
             t.roundNumber === currentRound
           );
-          inputs[key] = existingTariff ? existingTariff.rate.toString() : '';
+          inputs[key] = existingTariff ? String(existingTariff.rate) : '';
         });
       });
       
