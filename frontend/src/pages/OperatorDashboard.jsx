@@ -32,7 +32,8 @@ export default function OperatorDashboard() {
     loadGameData,
     sendChatMessage,
     logout,
-    apiCall
+    apiCall,
+    socket
   } = useGame();
 
   const [loading, setLoading] = useState(false);
