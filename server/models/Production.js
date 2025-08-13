@@ -39,6 +39,7 @@ const Production = sequelize.define('Production', {
   updatedAt: false,
   indexes: [
     {
+      name: 'uniq_production',
       unique: true,
       fields: ['game_id', 'country', 'product']
     }

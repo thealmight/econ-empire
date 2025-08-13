@@ -61,6 +61,7 @@ const TariffRate = sequelize.define('TariffRate', {
   timestamps: false,
   indexes: [
     {
+      name: 'uniq_tariff_rates',
       unique: true,
       fields: ['game_id', 'round_number', 'product', 'from_country', 'to_country']
     }

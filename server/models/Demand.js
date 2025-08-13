@@ -39,6 +39,7 @@ const Demand = sequelize.define('Demand', {
   updatedAt: false,
   indexes: [
     {
+      name: 'uniq_demand',
       unique: true,
       fields: ['game_id', 'country', 'product']
     }
