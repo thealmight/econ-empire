@@ -71,12 +71,16 @@ io.on('connection', async (socket) => {
       isOnline: true
     });
 
-    // Send current online users to the newly connected user
+    // Send current online users (computed from connected sockets)
+    const connectedIds = Array.from(io.sockets.sockets.values())
+      .map(s => s.userId)
+      .filter(Boolean);
+    const uniqueIds = [...new Set(connectedIds)];
     const onlineUsers = await User.findAll({
-      where: { isOnline: true },
+      where: { id: uniqueIds },
       attributes: ['id', 'username', 'role', 'country', 'isOnline']
     });
-    
+
     socket.emit('onlineUsers', onlineUsers);
 
   } catch (error) {
@@ -116,7 +120,7 @@ io.on('connection', async (socket) => {
       const messageData = {
         id: message.id,
         gameId,
-        senderCountry: socket.country,
+        senderCountry: socket.country || (socket.role === 'operator' ? 'Operator' : 'Unknown'),
         messageType,
         recipientCountry,
         content: message.content,
@@ -232,6 +236,17 @@ io.on('connection', async (socket) => {
         country: socket.country,
         isOnline: false
       });
+
+      // Emit updated online users list based on live sockets
+      const connectedIds = Array.from(io.sockets.sockets.values())
+        .map(s => s.userId)
+        .filter(Boolean);
+      const uniqueIds = [...new Set(connectedIds)];
+      const onlineUsers = await User.findAll({
+        where: { id: uniqueIds },
+        attributes: ['id', 'username', 'role', 'country', 'isOnline']
+      });
+      io.emit('onlineUsers', onlineUsers);
 
     } catch (error) {
       console.error('Error updating user status on disconnect:', error);
