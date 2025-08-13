@@ -107,7 +107,7 @@ io.on('connection', async (socket) => {
       const message = await ChatMessage.create({
         gameId,
         senderId: socket.userId,
-        senderCountry: socket.country,
+        senderCountry: socket.country || (socket.role === 'operator' ? 'Operator' : 'Unknown'),
         messageType,
         recipientCountry,
         content: content.trim()

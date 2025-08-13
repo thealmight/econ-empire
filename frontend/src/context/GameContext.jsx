@@ -103,6 +103,8 @@ export const GameProvider = ({ children }) => {
       setAuthUser(prev => {
         if (!prev) return prev;
         if (update.id === prev.id && update.country && update.country !== prev.country) {
+          // After country update, reload data
+          loadGameData();
           return { ...prev, country: update.country };
         }
         return prev;
