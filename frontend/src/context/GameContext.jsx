@@ -430,6 +430,17 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  // Force logout all players (operator only)
+  const forceLogout = async () => {
+    if (!authUser || authUser.role !== 'operator') return;
+    try {
+      await apiCall('/auth/logout-all', { method: 'POST' });
+    } catch (error) {
+      console.error('Force logout players error:', error);
+      throw error;
+    }
+  };
+
   const value = {
     // Game state
     gameId,
@@ -479,6 +490,7 @@ export const GameProvider = ({ children }) => {
     loadGameData,
     logout,
     refreshUser,
+    forceLogout,
 
     // API helper
     apiCall

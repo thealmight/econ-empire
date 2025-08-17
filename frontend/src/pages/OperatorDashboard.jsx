@@ -33,7 +33,8 @@ export default function OperatorDashboard() {
     sendChatMessage,
     logout,
     apiCall,
-    socket
+    socket,
+    forceLogout
   } = useGame();
 
   const [loading, setLoading] = useState(false);
@@ -205,6 +206,18 @@ export default function OperatorDashboard() {
     }
   };
 
+  const handleLogoutAllPlayers = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await forceLogout();
+    } catch (err) {
+      setError(err.message || 'Failed to logout all players');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onlinePlayers = onlineUsers.filter(user => user.role === 'player');
 
   return (
@@ -216,12 +229,21 @@ export default function OperatorDashboard() {
             <h1 className="text-3xl font-bold text-gray-800">Operator Dashboard</h1>
             <p className="text-gray-600">Welcome, {authUser?.username}</p>
           </div>
-          <button
-            onClick={logout}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-          >
-            Logout
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleLogoutAllPlayers}
+              disabled={loading}
+              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition disabled:opacity-50"
+            >
+              {loading ? 'Logging out players...' : 'Logout All Players'}
+            </button>
+            <button
+              onClick={logout}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {error && (
