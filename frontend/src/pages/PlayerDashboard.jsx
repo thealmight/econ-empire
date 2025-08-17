@@ -251,7 +251,7 @@ export default function PlayerDashboard() {
             </div>
             <div>
               <h3 className="font-medium text-gray-700">Online Players</h3>
-              <p className="text-lg font-semibold">{onlinePlayers.length}/5</p>
+              <p className="text-lg font-semibold">{onlinePlayers.length} of 5</p>
             </div>
           </div>
 

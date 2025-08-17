@@ -254,7 +254,7 @@ export default function OperatorDashboard() {
 
         {/* Online Players Status */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4">Online Players ({onlinePlayers.length}/5)</h2>
+          <h2 className="text-xl font-semibold mb-4">Online Players ({onlinePlayers.length} of 5)</h2>
           <div className="grid grid-cols-5 gap-4">
             {countries.map(country => {
               const player = onlinePlayers.find(p => p.country === country);
