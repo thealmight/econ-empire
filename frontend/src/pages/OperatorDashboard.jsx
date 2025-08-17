@@ -373,7 +373,7 @@ export default function OperatorDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Production Table */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Production Table</h2>
+              <h2 className="text-xl font-semibold mb-4">Demand Table</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-200">
@@ -405,7 +405,7 @@ export default function OperatorDashboard() {
 
             {/* Demand Table */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Demand Table</h2>
+              <h2 className="text-xl font-semibold mb-4">Production Table</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-200">

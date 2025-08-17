@@ -276,7 +276,7 @@ export default function PlayerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Production */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Your Production ({playerCountry})</h2>
+            <h2 className="text-xl font-semibold mb-4">Your Demand ({playerCountry})</h2>
             {playerProduction.length > 0 ? (
               <div className="space-y-3">
                 {playerProduction.map(prod => (
@@ -287,13 +287,13 @@ export default function PlayerDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500">No production data available</p>
+              <p className="text-gray-500">No demand data available</p>
             )}
           </div>
 
           {/* Demand */}
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Your Demand ({playerCountry})</h2>
+            <h2 className="text-xl font-semibold mb-4">Your Production ({playerCountry})</h2>
             {playerDemand.length > 0 ? (
               <div className="space-y-3">
                 {playerDemand.map(dem => (
@@ -304,7 +304,7 @@ export default function PlayerDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500">No demand data available</p>
+              <p className="text-gray-500">No production data available</p>
             )}
           </div>
         </div>
@@ -323,7 +323,7 @@ export default function PlayerDashboard() {
             ) : (
               <>
                 <p className="text-gray-600 mb-4">
-                  Set tariff rates for products your country produces. Rates must be between 0-100%.
+                  Set tariff rates for products your country demands. Rates must be between 0-100%.
                 </p>
 
                 <div className="space-y-4 mb-6">
@@ -337,7 +337,7 @@ export default function PlayerDashboard() {
 
                     return (
                       <div key={prod.product} className="border rounded-lg p-4">
-                        <h3 className="font-medium text-lg mb-3">{prod.product} (You produce {prod.quantity} units)</h3>
+                        <h3 className="font-medium text-lg mb-3">{prod.product} (You demand {prod.quantity} units)</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {demandingCountries.map(country => {
                             const key = `${prod.product}-${country}`;
@@ -346,7 +346,7 @@ export default function PlayerDashboard() {
                             return (
                               <div key={country} className="border rounded p-3">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  To {country} (demands {demandQuantity} units)
+                                  To {country} (produces {demandQuantity} units)
                                 </label>
                                 <div className="flex items-center">
                                   <input
@@ -416,7 +416,7 @@ export default function PlayerDashboard() {
                         return (
                           <div key={country} className="border rounded p-3 bg-gray-50">
                             <div className="font-medium">{country}</div>
-                            <div className="text-sm text-gray-600">Produces {quantity} units</div>
+                            <div className="text-sm text-gray-600">Demands {quantity} units</div>
                             <div className="text-lg font-bold text-red-600">
                               Tariff: {currentTariff ? `${currentTariff.rate}%` : 'Not set'}
                             </div>
