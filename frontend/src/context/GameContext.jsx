@@ -188,8 +188,9 @@ export const GameProvider = ({ children }) => {
       }
     };
 
-    const apiBase = process.env.REACT_APP_API_BASE || '';
-    const response = await fetch(`${apiBase}/api${endpoint}`, {
+    const apiBase = (process.env.REACT_APP_API_BASE || '').replace(/\/+$/, '');
+    const url = `${apiBase}${apiBase.endsWith('/api') ? '' : '/api'}${endpoint}`;
+    const response = await fetch(url, {
       ...defaultOptions,
       ...options,
       headers: { ...defaultOptions.headers, ...options.headers }
