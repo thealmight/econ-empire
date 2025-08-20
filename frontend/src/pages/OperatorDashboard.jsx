@@ -184,13 +184,13 @@ export default function OperatorDashboard() {
 
       history.forEach(row => {
         rows.push([
-          row.round,
-          row.fromCountry,
-          row.toCountry,
-          row.product,
-          row.rate,
-          row.player || 'System',
-          row.submittedAt ? new Date(row.submittedAt).toISOString() : ''
+          row.round ?? row.roundNumber ?? '',
+          row.fromCountry ?? '',
+          row.toCountry ?? '',
+          row.product ?? '',
+          row.rate ?? '',
+          row.player || row.updatedBy || 'System',
+          row.submittedAt ? new Date(row.submittedAt).toISOString() : (row.updatedAt ? new Date(row.updatedAt).toISOString() : '')
         ].join(','));
       });
 
@@ -518,13 +518,13 @@ export default function OperatorDashboard() {
                 <tbody>
                   {tariffHistory.map((row, idx) => (
                     <tr key={idx} className="border-t">
-                      <td className="px-3 py-2">{row.round}</td>
-                      <td className="px-3 py-2">{row.fromCountry}</td>
-                      <td className="px-3 py-2">{row.toCountry}</td>
-                      <td className="px-3 py-2">{row.product}</td>
-                      <td className="px-3 py-2">{row.rate}%</td>
-                      <td className="px-3 py-2">{row.player || 'System'}</td>
-                      <td className="px-3 py-2 text-xs">{row.submittedAt ? new Date(row.submittedAt).toLocaleString() : ''}</td>
+                      <td className="px-3 py-2">{row.round ?? row.roundNumber ?? ''}</td>
+                      <td className="px-3 py-2">{row.fromCountry ?? ''}</td>
+                      <td className="px-3 py-2">{row.toCountry ?? ''}</td>
+                      <td className="px-3 py-2">{row.product ?? ''}</td>
+                      <td className="px-3 py-2">{row.rate ?? ''}%</td>
+                      <td className="px-3 py-2">{row.player || row.updatedBy || 'System'}</td>
+                      <td className="px-3 py-2 text-xs">{row.submittedAt ? new Date(row.submittedAt).toLocaleString() : (row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '')}</td>
                     </tr>
                   ))}
                 </tbody>

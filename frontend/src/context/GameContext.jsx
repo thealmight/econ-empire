@@ -144,12 +144,14 @@ export const GameProvider = ({ children }) => {
         return [...filtered, data];
       });
 
-      // Add to history
+      // Add to history (normalized for UI/export)
       setTariffHistory(prev => [...prev, {
         round: data.roundNumber,
+        fromCountry: data.fromCountry,
+        toCountry: data.toCountry,
+        product: data.product,
+        rate: data.rate,
         player: data.updatedBy,
-        country: data.fromCountry,
-        tariffs: { [data.product]: data.rate },
         submittedAt: data.updatedAt
       }]);
     });
