@@ -29,6 +29,7 @@ export const GameProvider = ({ children }) => {
 
   // Chat state
   const [chatMessages, setChatMessages] = useState([]);
+  const [isGroupChatEnabled, setIsGroupChatEnabled] = useState(true);
 
   // Socket connection
   const [socket, setSocket] = useState(null);
@@ -156,6 +157,13 @@ export const GameProvider = ({ children }) => {
     // Handle chat messages
     newSocket.on('newMessage', (message) => {
       setChatMessages(prev => [...prev, message]);
+    });
+
+    // Handle chat settings updates
+    newSocket.on('chatSettingsUpdated', ({ gameId: updatedGameId, groupChatEnabled }) => {
+      if (!gameId || updatedGameId === gameId) {
+        setIsGroupChatEnabled(Boolean(groupChatEnabled));
+      }
     });
 
     // Handle errors
@@ -401,6 +409,16 @@ export const GameProvider = ({ children }) => {
     });
   };
 
+  // Operator: toggle group chat
+  const setGroupChat = async (enabled) => {
+    if (!authUser || authUser.role !== 'operator' || !gameId) return;
+    await apiCall(`/game/${gameId}/chat/group`, {
+      method: 'POST',
+      body: JSON.stringify({ enabled })
+    });
+    setIsGroupChatEnabled(Boolean(enabled));
+  };
+
   // Logout
   const logout = async () => {
     try {
@@ -476,6 +494,8 @@ export const GameProvider = ({ children }) => {
     // Chat
     chatMessages,
     sendChatMessage,
+    isGroupChatEnabled,
+    setGroupChat,
 
     // Socket
     socket,

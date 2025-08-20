@@ -34,7 +34,9 @@ export default function OperatorDashboard() {
     logout,
     apiCall,
     socket,
-    forceLogout
+    forceLogout,
+    isGroupChatEnabled,
+    setGroupChat
   } = useGame();
 
   const [loading, setLoading] = useState(false);
@@ -533,7 +535,18 @@ export default function OperatorDashboard() {
 
         {/* Chat Section */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Game Chat</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Game Chat</h2>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-700">Group Chat:</span>
+              <button
+                onClick={() => setGroupChat(!isGroupChatEnabled)}
+                className={`px-3 py-1 rounded text-white ${isGroupChatEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}`}
+              >
+                {isGroupChatEnabled ? 'Enabled' : 'Disabled'}
+              </button>
+            </div>
+          </div>
           <div className="border rounded-lg mb-4 h-64 overflow-y-auto p-4 bg-gray-50">
             {chatMessages.length === 0 ? (
               <p className="text-gray-500 text-center">No messages yet...</p>

@@ -1,6 +1,7 @@
 const http = require('http');
 const socketIo = require('socket.io');
 const app = require('./app');
+const { getGroupChatEnabled } = require('./state/chatSettings');
 const { User, ChatMessage } = require('./models');
 const jwt = require('jsonwebtoken');
 
@@ -128,6 +129,11 @@ io.on('connection', async (socket) => {
       };
 
       if (messageType === 'group') {
+        // Enforce group chat toggle per game
+        if (!getGroupChatEnabled(gameId)) {
+          socket.emit('error', { message: 'Group chat is disabled by the operator' });
+          return;
+        }
         // Broadcast to all players and operators
         io.emit('newMessage', messageData);
       } else if (messageType === 'private' && recipientCountry) {

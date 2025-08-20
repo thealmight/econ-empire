@@ -6,6 +6,7 @@ const morgan = require('morgan');
 // Import routes
 const { router: authRoutes } = require('./routes/auth');
 const gameRoutes = require('./routes/gameRoutes');
+const gameChatRoutes = require('./routes/game');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/game', gameChatRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
