@@ -221,6 +221,7 @@ export default function OperatorDashboard() {
   };
 
   const onlinePlayers = onlineUsers.filter(user => user.role === 'player');
+  const onlineAssignedPlayersCount = countries.filter(c => onlinePlayers.some(p => p.country === c)).length;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -256,7 +257,7 @@ export default function OperatorDashboard() {
 
         {/* Online Players Status */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4">Online Players ({onlinePlayers.length} of 5)</h2>
+          <h2 className="text-xl font-semibold mb-4">Online Players ({onlineAssignedPlayersCount} of 5)</h2>
           <div className="grid grid-cols-5 gap-4">
             {countries.map(country => {
               const player = onlinePlayers.find(p => p.country === country);
