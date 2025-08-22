@@ -33,7 +33,10 @@ export default function OperatorDashboard() {
     sendChatMessage,
     logout,
     apiCall,
-    socket
+    socket,
+    forceLogout,
+    isGroupChatEnabled,
+    setGroupChat
   } = useGame();
 
   const [loading, setLoading] = useState(false);
@@ -181,13 +184,13 @@ export default function OperatorDashboard() {
 
       history.forEach(row => {
         rows.push([
-          row.round,
-          row.fromCountry,
-          row.toCountry,
-          row.product,
-          row.rate,
-          row.player || 'System',
-          row.submittedAt ? new Date(row.submittedAt).toISOString() : ''
+          row.round ?? row.roundNumber ?? '',
+          row.fromCountry ?? '',
+          row.toCountry ?? '',
+          row.product ?? '',
+          row.rate ?? '',
+          row.player || row.updatedBy || 'System',
+          row.submittedAt ? new Date(row.submittedAt).toISOString() : (row.updatedAt ? new Date(row.updatedAt).toISOString() : '')
         ].join(','));
       });
 
@@ -205,7 +208,20 @@ export default function OperatorDashboard() {
     }
   };
 
+  const handleLogoutAllPlayers = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await forceLogout();
+    } catch (err) {
+      setError(err.message || 'Failed to logout all players');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onlinePlayers = onlineUsers.filter(user => user.role === 'player');
+  const onlineAssignedPlayersCount = countries.filter(c => onlinePlayers.some(p => p.country === c)).length;
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -216,12 +232,21 @@ export default function OperatorDashboard() {
             <h1 className="text-3xl font-bold text-gray-800">Operator Dashboard</h1>
             <p className="text-gray-600">Welcome, {authUser?.username}</p>
           </div>
-          <button
-            onClick={logout}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
-          >
-            Logout
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleLogoutAllPlayers}
+              disabled={loading}
+              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition disabled:opacity-50"
+            >
+              {loading ? 'Logging out players...' : 'Logout All Players'}
+            </button>
+            <button
+              onClick={logout}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -232,7 +257,7 @@ export default function OperatorDashboard() {
 
         {/* Online Players Status */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <h2 className="text-xl font-semibold mb-4">Online Players ({onlinePlayers.length}/5)</h2>
+          <h2 className="text-xl font-semibold mb-4">Online Players ({onlineAssignedPlayersCount} of 5)</h2>
           <div className="grid grid-cols-5 gap-4">
             {countries.map(country => {
               const player = onlinePlayers.find(p => p.country === country);
@@ -351,7 +376,7 @@ export default function OperatorDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Production Table */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Production Table</h2>
+              <h2 className="text-xl font-semibold mb-4">Demand Table</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-200">
@@ -383,7 +408,7 @@ export default function OperatorDashboard() {
 
             {/* Demand Table */}
             <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Demand Table</h2>
+              <h2 className="text-xl font-semibold mb-4">Production Table</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-200">
@@ -494,13 +519,13 @@ export default function OperatorDashboard() {
                 <tbody>
                   {tariffHistory.map((row, idx) => (
                     <tr key={idx} className="border-t">
-                      <td className="px-3 py-2">{row.round}</td>
-                      <td className="px-3 py-2">{row.fromCountry}</td>
-                      <td className="px-3 py-2">{row.toCountry}</td>
-                      <td className="px-3 py-2">{row.product}</td>
-                      <td className="px-3 py-2">{row.rate}%</td>
-                      <td className="px-3 py-2">{row.player || 'System'}</td>
-                      <td className="px-3 py-2 text-xs">{row.submittedAt ? new Date(row.submittedAt).toLocaleString() : ''}</td>
+                      <td className="px-3 py-2">{row.round ?? row.roundNumber ?? ''}</td>
+                      <td className="px-3 py-2">{row.fromCountry ?? ''}</td>
+                      <td className="px-3 py-2">{row.toCountry ?? ''}</td>
+                      <td className="px-3 py-2">{row.product ?? ''}</td>
+                      <td className="px-3 py-2">{row.rate ?? ''}%</td>
+                      <td className="px-3 py-2">{row.player || row.updatedBy || 'System'}</td>
+                      <td className="px-3 py-2 text-xs">{row.submittedAt ? new Date(row.submittedAt).toLocaleString() : (row.updatedAt ? new Date(row.updatedAt).toLocaleString() : '')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -511,7 +536,49 @@ export default function OperatorDashboard() {
 
         {/* Chat Section */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Game Chat</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Game Chat</h2>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-700">Group Chat:</span>
+              <button
+                onClick={() => setGroupChat(!isGroupChatEnabled)}
+                className={`px-3 py-1 rounded text-white ${isGroupChatEnabled ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 hover:bg-gray-600'}`}
+              >
+                {isGroupChatEnabled ? 'Enabled' : 'Disabled'}
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const logs = await apiCall(`/game/${gameId}/chat/messages`);
+                    const header = ['Sent At', 'Type', 'Sender', 'Recipient', 'Content'];
+                    const rows = [header.join(',')];
+                    logs.forEach(m => {
+                      rows.push([
+                        m.sentAt ? new Date(m.sentAt).toISOString() : '',
+                        m.messageType,
+                        m.senderCountry,
+                        m.recipientCountry || '',
+                        JSON.stringify(m.content).replaceAll('"', '""')
+                      ].join(','));
+                    });
+                    const csv = rows.join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `chat_logs_${gameId}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  } catch (e) {
+                    setError('Failed to export chat logs');
+                  }
+                }}
+                className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Export Chat CSV
+              </button>
+            </div>
+          </div>
           <div className="border rounded-lg mb-4 h-64 overflow-y-auto p-4 bg-gray-50">
             {chatMessages.length === 0 ? (
               <p className="text-gray-500 text-center">No messages yet...</p>

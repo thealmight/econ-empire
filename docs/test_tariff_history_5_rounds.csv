@@ -1,0 +1,26 @@
+Round,From Country,To Country,Product,Rate,Player,Submitted At
+1,USA,China,Steel,7,Operator,2025-01-01T10:00:00.000Z
+1,China,Germany,Grain,8,Operator,2025-01-01T10:02:00.000Z
+1,Germany,Japan,Oil,9,Operator,2025-01-01T10:04:00.000Z
+1,Japan,India,Electronics,10,Operator,2025-01-01T10:06:00.000Z
+1,India,USA,Textiles,11,Operator,2025-01-01T10:08:00.000Z
+2,USA,Germany,Steel,8,Operator,2025-01-01T11:00:00.000Z
+2,China,Japan,Grain,9,Operator,2025-01-01T11:02:00.000Z
+2,Germany,India,Oil,10,Operator,2025-01-01T11:04:00.000Z
+2,Japan,USA,Electronics,11,Operator,2025-01-01T11:06:00.000Z
+2,India,China,Textiles,12,Operator,2025-01-01T11:08:00.000Z
+3,USA,Japan,Steel,9,Operator,2025-01-01T12:00:00.000Z
+3,China,India,Grain,10,Operator,2025-01-01T12:02:00.000Z
+3,Germany,USA,Oil,11,Operator,2025-01-01T12:04:00.000Z
+3,Japan,China,Electronics,12,Operator,2025-01-01T12:06:00.000Z
+3,India,Germany,Textiles,13,Operator,2025-01-01T12:08:00.000Z
+4,USA,India,Steel,10,Operator,2025-01-01T13:00:00.000Z
+4,China,USA,Grain,11,Operator,2025-01-01T13:02:00.000Z
+4,Germany,China,Oil,12,Operator,2025-01-01T13:04:00.000Z
+4,Japan,Germany,Electronics,13,Operator,2025-01-01T13:06:00.000Z
+4,India,Japan,Textiles,14,Operator,2025-01-01T13:08:00.000Z
+5,USA,China,Steel,11,Operator,2025-01-01T14:00:00.000Z
+5,China,Germany,Grain,12,Operator,2025-01-01T14:02:00.000Z
+5,Germany,Japan,Oil,13,Operator,2025-01-01T14:04:00.000Z
+5,Japan,India,Electronics,14,Operator,2025-01-01T14:06:00.000Z
+5,India,USA,Textiles,15,Operator,2025-01-01T14:08:00.000Z

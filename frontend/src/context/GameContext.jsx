@@ -29,6 +29,7 @@ export const GameProvider = ({ children }) => {
 
   // Chat state
   const [chatMessages, setChatMessages] = useState([]);
+  const [isGroupChatEnabled, setIsGroupChatEnabled] = useState(true);
 
   // Socket connection
   const [socket, setSocket] = useState(null);
@@ -143,12 +144,14 @@ export const GameProvider = ({ children }) => {
         return [...filtered, data];
       });
 
-      // Add to history
+      // Add to history (normalized for UI/export)
       setTariffHistory(prev => [...prev, {
         round: data.roundNumber,
+        fromCountry: data.fromCountry,
+        toCountry: data.toCountry,
+        product: data.product,
+        rate: data.rate,
         player: data.updatedBy,
-        country: data.fromCountry,
-        tariffs: { [data.product]: data.rate },
         submittedAt: data.updatedAt
       }]);
     });
@@ -156,6 +159,13 @@ export const GameProvider = ({ children }) => {
     // Handle chat messages
     newSocket.on('newMessage', (message) => {
       setChatMessages(prev => [...prev, message]);
+    });
+
+    // Handle chat settings updates
+    newSocket.on('chatSettingsUpdated', ({ gameId: updatedGameId, groupChatEnabled }) => {
+      if (!gameId || updatedGameId === gameId) {
+        setIsGroupChatEnabled(Boolean(groupChatEnabled));
+      }
     });
 
     // Handle errors
@@ -188,8 +198,9 @@ export const GameProvider = ({ children }) => {
       }
     };
 
-    const apiBase = process.env.REACT_APP_API_BASE || '';
-    const response = await fetch(`${apiBase}/api${endpoint}`, {
+    const apiBase = (process.env.REACT_APP_API_BASE || '').replace(/\/+$/, '');
+    const url = `${apiBase}${apiBase.endsWith('/api') ? '' : '/api'}${endpoint}`;
+    const response = await fetch(url, {
       ...defaultOptions,
       ...options,
       headers: { ...defaultOptions.headers, ...options.headers }
@@ -400,6 +411,16 @@ export const GameProvider = ({ children }) => {
     });
   };
 
+  // Operator: toggle group chat
+  const setGroupChat = async (enabled) => {
+    if (!authUser || authUser.role !== 'operator' || !gameId) return;
+    await apiCall(`/game/${gameId}/chat/group`, {
+      method: 'POST',
+      body: JSON.stringify({ enabled })
+    });
+    setIsGroupChatEnabled(Boolean(enabled));
+  };
+
   // Logout
   const logout = async () => {
     try {
@@ -427,6 +448,17 @@ export const GameProvider = ({ children }) => {
       setTariffHistory([]);
       setChatMessages([]);
       setOnlineUsers([]);
+    }
+  };
+
+  // Force logout all players (operator only)
+  const forceLogout = async () => {
+    if (!authUser || authUser.role !== 'operator') return;
+    try {
+      await apiCall('/auth/logout-all', { method: 'POST' });
+    } catch (error) {
+      console.error('Force logout players error:', error);
+      throw error;
     }
   };
 
@@ -464,6 +496,8 @@ export const GameProvider = ({ children }) => {
     // Chat
     chatMessages,
     sendChatMessage,
+    isGroupChatEnabled,
+    setGroupChat,
 
     // Socket
     socket,
@@ -479,6 +513,7 @@ export const GameProvider = ({ children }) => {
     loadGameData,
     logout,
     refreshUser,
+    forceLogout,
 
     // API helper
     apiCall

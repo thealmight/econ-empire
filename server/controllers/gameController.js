@@ -102,10 +102,10 @@ const initializeGameData = async (gameId) => {
         remainingDemand -= quantity;
       }
 
-      // Initialize tariff rates (0 for same country, random 0-100 for others)
+      // Initialize tariff rates (0 for same country, 5 for others)
       for (const fromCountry of productionCountries) {
         for (const toCountry of demandCountries) {
-          const rate = fromCountry === toCountry ? 0 : Math.floor(Math.random() * 101);
+          const rate = fromCountry === toCountry ? 0 : 5;
           
           await TariffRate.create({
             gameId,

@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { assignCountryIfMissing, COUNTRIES } = require('../utils/countryAssignment');
+const { Op } = require('sequelize');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -96,6 +97,40 @@ router.post('/logout', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Operator: force logout all players
+router.post('/logout-all', authenticateToken, requireOperator, async (req, res) => {
+  try {
+    const { io } = require('../server');
+
+    // Fetch all players with an active socket id
+    const playersWithSockets = await User.findAll({
+      where: { role: 'player', socketId: { [Op.ne]: null } },
+      attributes: ['socketId']
+    });
+
+    // Disconnect each player socket if connected
+    if (io && io.sockets && io.sockets.sockets) {
+      playersWithSockets.forEach(({ socketId }) => {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket) {
+          try { socket.disconnect(true); } catch (e) { /* ignore */ }
+        }
+      });
+    }
+
+    // Mark all players offline in DB (in case any stale sockets remain)
+    await User.update(
+      { isOnline: false, socketId: null },
+      { where: { role: 'player' } }
+    );
+
+    return res.json({ success: true, message: 'All players have been logged out' });
+  } catch (error) {
+    console.error('Logout-all error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
