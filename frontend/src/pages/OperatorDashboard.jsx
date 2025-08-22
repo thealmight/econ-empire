@@ -546,6 +546,37 @@ export default function OperatorDashboard() {
               >
                 {isGroupChatEnabled ? 'Enabled' : 'Disabled'}
               </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const logs = await apiCall(`/game/${gameId}/chat/messages`);
+                    const header = ['Sent At', 'Type', 'Sender', 'Recipient', 'Content'];
+                    const rows = [header.join(',')];
+                    logs.forEach(m => {
+                      rows.push([
+                        m.sentAt ? new Date(m.sentAt).toISOString() : '',
+                        m.messageType,
+                        m.senderCountry,
+                        m.recipientCountry || '',
+                        JSON.stringify(m.content).replaceAll('"', '""')
+                      ].join(','));
+                    });
+                    const csv = rows.join('\n');
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `chat_logs_${gameId}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  } catch (e) {
+                    setError('Failed to export chat logs');
+                  }
+                }}
+                className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Export Chat CSV
+              </button>
             </div>
           </div>
           <div className="border rounded-lg mb-4 h-64 overflow-y-auto p-4 bg-gray-50">
